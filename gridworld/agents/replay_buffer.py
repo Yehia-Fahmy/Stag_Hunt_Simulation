@@ -182,8 +182,17 @@ class MultiAgentReplayBuffer:
             batch["global_states"] = torch.FloatTensor(
                 np.array([t.global_state for t in transitions])
             ).to(device)
+            # Handle None next_global_state (terminal states) by using global_state as fallback
+            next_global_states = []
+            for t in transitions:
+                if t.next_global_state is not None:
+                    next_global_states.append(t.next_global_state)
+                else:
+                    # Use current global state as placeholder for terminal states
+                    # (will be masked out by done flag anyway)
+                    next_global_states.append(t.global_state)
             batch["next_global_states"] = torch.FloatTensor(
-                np.array([t.next_global_state for t in transitions])
+                np.array(next_global_states)
             ).to(device)
         
         return batch
