@@ -191,15 +191,31 @@ class MetricsTracker:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         
+        def convert_to_native(obj):
+            """Convert numpy types to native Python types for JSON serialization."""
+            if isinstance(obj, np.integer):
+                return int(obj)
+            elif isinstance(obj, np.floating):
+                return float(obj)
+            elif isinstance(obj, np.ndarray):
+                return obj.tolist()
+            elif isinstance(obj, dict):
+                return {k: convert_to_native(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_to_native(item) for item in obj]
+            elif isinstance(obj, tuple):
+                return tuple(convert_to_native(item) for item in obj)
+            return obj
+        
         data = {
-            "episode_rewards": self.metrics.episode_rewards,
-            "agent_rewards": {str(k): v for k, v in self.metrics.agent_rewards.items()},
-            "stag_captures": self.metrics.stag_captures,
-            "hares_caught": {str(k): v for k, v in self.metrics.hares_caught.items()},
-            "episode_lengths": self.metrics.episode_lengths,
-            "epsilons": self.metrics.epsilons,
-            "losses": self.metrics.losses,
-            "capture_positions": self.metrics.capture_positions,
+            "episode_rewards": convert_to_native(self.metrics.episode_rewards),
+            "agent_rewards": {str(k): convert_to_native(v) for k, v in self.metrics.agent_rewards.items()},
+            "stag_captures": convert_to_native(self.metrics.stag_captures),
+            "hares_caught": {str(k): convert_to_native(v) for k, v in self.metrics.hares_caught.items()},
+            "episode_lengths": convert_to_native(self.metrics.episode_lengths),
+            "epsilons": convert_to_native(self.metrics.epsilons),
+            "losses": convert_to_native(self.metrics.losses),
+            "capture_positions": convert_to_native(self.metrics.capture_positions),
         }
         
         with open(path, "w") as f:
