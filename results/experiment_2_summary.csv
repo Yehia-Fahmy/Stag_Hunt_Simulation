@@ -1,0 +1,4 @@
+,Stag-Stag Rate,Hare-Hare Rate,Miscoordination Rate
+Q-Learning vs FictitiousPlay,0.31,0.29,0.4
+Q-Learning vs RegretMatching,0.24,0.35,0.41
+FictitiousPlay vs RegretMatching,1.0,0.0,0.0
